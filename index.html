@@ -370,9 +370,9 @@
 
       let text = '';
       if (currentMode === 'area') {
-        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。請算一算：${currentA} 乘 ${currentB} 等於多少`;
+        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。請算一算：${currentA} 成 ${currentB} 等於多少`;
       } else if (currentMode === 'groupColor') {
-        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。可以想成「${currentB} 個一數」，數了 ${currentA} 次。請算一算：${currentA} 乘 ${currentB} 等於多少`;        
+        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。可以想成「${currentB} 個一數」，數了 ${currentA} 次。請算一算：${currentA} 成 ${currentB} 等於多少`;        
       }
 
       const msg = new SpeechSynthesisUtterance(text);
