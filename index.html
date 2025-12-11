@@ -38,12 +38,85 @@
       margin-bottom: 10px;
     }
 
+    .stats {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .stats span {
+      font-weight: 600;
+    }
+
+    /* 獎勵區 */
+    .reward-panel {
+      background: #f7f8ff;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      border: 1px solid #dde3ff;
+    }
+
+    .reward-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 2px 0;
+      flex-wrap: wrap;
+    }
+
+    .reward-label {
+      font-weight: 600;
+      color: #444;
+      min-width: 76px;
+    }
+
+    .star-track {
+      display: flex;
+      gap: 2px;
+      flex-wrap: nowrap;
+    }
+
+    .star {
+      font-size: 16px;
+      color: #d0d4e6; /* 未點亮 */
+    }
+
+    .star.on {
+      color: #ffb400; /* 點亮顏色 */
+      text-shadow: 0 0 3px rgba(255, 180, 0, 0.7);
+    }
+
+    .star-count-text {
+      font-size: 12px;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .streak-text {
+      font-size: 13px;
+      color: #e67e22;
+      font-weight: 600;
+    }
+
+    .badge-list {
+      font-size: 18px;
+    }
+
+    .badge-empty {
+      font-size: 12px;
+      color: #888;
+    }
+
     .mode-switch {
       display: flex;
       justify-content: center;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .mode-btn {
@@ -93,17 +166,6 @@
     button.secondary {
       background: #e1e7ff;
       color: #21409a;
-    }
-
-    .stats {
-      text-align: center;
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 12px;
-    }
-
-    .stats span {
-      font-weight: 600;
     }
 
     .question-text {
@@ -236,35 +298,66 @@
 <body>
   <div class="game-wrapper">
     <h1>乘法小點點</h1>
-    <div class="subtitle" id="subtitle">看圓球陣列，想一想：幾排 × 每排幾個？</div>
+    <div class="subtitle" id="subtitle">
+      看圓球陣列，想一想：幾排 × 每排幾個？
+    </div>
 
     <div class="stats">
       已答對：<span id="correct-count">0</span> 題 ／ 總題數：<span id="total-count">0</span>
     </div>
 
-    <div id="question-text" class="question-text"></div>
+    <!-- ⭐ / 🔥 / 勳章 區 -->
+    <div class="reward-panel">
+      <div class="reward-row">
+        <span class="reward-label">星星任務：</span>
+        <div class="star-track" id="star-track"></div>
+        <span class="star-count-text" id="star-count-text">0 / 10</span>
+      </div>
+      <div class="reward-row">
+        <span class="reward-label">連續答對：</span>
+        <span class="streak-text" id="streak-text">—</span>
+      </div>
+      <div class="reward-row">
+        <span class="reward-label">動物勳章：</span>
+        <span class="badge-list" id="badge-list">
+          <span class="badge-empty">還沒有，慢慢收集～</span>
+        </span>
+      </div>
+    </div>
+
+    <div id="question-text" class="question-text">
+      按「下一題」開始練習！
+    </div>
 
     <div class="array-wrapper">
       <div id="array-label" class="array-label"></div>
       <div id="dot-grid" class="dot-grid"></div>
     </div>
 
+    <!-- 模式 & 難度 & 控制 -->
     <div class="mode-switch">
-      <button class="mode-btn active" data-mode="area" id="mode-area">🟢🟢面積模式</button>
-      <button class="mode-btn" data-mode="groupColor" id="mode-group">🔴🟢顏色分組模式（幾個一數）</button>
+      <button class="mode-btn active" data-mode="area" id="mode-area">
+        面積模式
+      </button>
+      <button class="mode-btn" data-mode="groupColor" id="mode-group">
+        顏色分組模式（幾個一數）
+      </button>
     </div>
 
-    <div class="mode-switch" style="margin-top:6px;">
-      <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">🟢普通（1~5）</button>
-      <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">🔴困難（1~9）</button>
+    <div class="mode-switch" style="margin-top:4px;">
+      <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
+        普通（1~5）
+      </button>
+      <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
+        困難（1~9）
+      </button>
     </div>
 
     <div class="controls">
-      <button id="new-question-btn">⏩下一題</button>
+      <button id="new-question-btn">▶ 下一題</button>
       <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
       <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
     </div>
-
 
     <div class="equation">
       <span id="factor-a" class="factor">?</span>
@@ -272,7 +365,7 @@
       <span id="factor-b" class="factor">?</span>
       <span class="symbol">=</span>
       <input id="answer-input" type="number" placeholder="？" />
-      <button id="check-btn">☑️檢查</button>
+      <button id="check-btn">檢查</button>
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -282,6 +375,7 @@
       小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。
     </div>
   </div>
+
   <script>
     // === 狀態 ===
     let currentA = null;    // 排數或「組數」
@@ -601,6 +695,5 @@
     updateBadgeDisplay();
     newQuestion();
   </script>
-
 </body>
 </html>
