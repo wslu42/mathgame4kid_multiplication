@@ -243,26 +243,26 @@
     <!-- 模式切換 -->
     <div class="mode-switch">
       <button class="mode-btn active" data-mode="area" id="mode-area">
-        面積模式
+        🟢🟢面積模式
       </button>
       <button class="mode-btn" data-mode="groupColor" id="mode-group">
-        顏色分組模式（幾個一數）
+        🟢🔴顏色分組模式（幾個一數）
       </button>
       <!-- 預留：未來可以加入積木模式 -->
     </div>
 
     <div class="mode-switch" style="margin-top:6px;">
     <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
-      普通（1~5）
+      🟢普通（1~5）
     </button>
     <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
-      困難（1~9）
+      🔴困難（1~9）
     </button>
     </div>
 
 
     <div class="controls">
-      <button id="new-question-btn">下一題</button>
+      <button id="new-question-btn">⏩下一題</button>
       <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
       <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
     </div>
@@ -376,12 +376,12 @@
       if (currentMode === "area") {
         // 面積模式：排 × 每排幾顆
         text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
-              `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+              `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
       } else if (currentMode === "groupColor") {
         // 顏色分組模式：組 × 每組幾顆
         text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
               `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
-              `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+              `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
       }
 
       const msg = new SpeechSynthesisUtterance(text);
