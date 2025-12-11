@@ -236,51 +236,38 @@
 <body>
   <div class="game-wrapper">
     <h1>乘法小點點</h1>
-    <div class="subtitle" id="subtitle">
-      看圓球陣列，想一想：幾排 × 每排幾個？
-    </div>
-
-    <!-- 模式切換 -->
-    <div class="mode-switch">
-      <button class="mode-btn active" data-mode="area" id="mode-area">
-        🟢🟢面積模式
-      </button>
-      <button class="mode-btn" data-mode="groupColor" id="mode-group">
-        🟢🔴顏色分組模式（幾個一數）
-      </button>
-      <!-- 預留：未來可以加入積木模式 -->
-    </div>
-
-    <div class="mode-switch" style="margin-top:6px;">
-    <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
-      🟢普通（1~5）
-    </button>
-    <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
-      🔴困難（1~9）
-    </button>
-    </div>
-
-
-    <div class="controls">
-      <button id="new-question-btn">⏩下一題</button>
-      <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
-      <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
-    </div>
+    <div class="subtitle" id="subtitle">看圓球陣列，想一想：幾排 × 每排幾個？</div>
 
     <div class="stats">
       已答對：<span id="correct-count">0</span> 題 ／ 總題數：<span id="total-count">0</span>
     </div>
 
-    <div id="question-text" class="question-text">
-      按「下一題」開始練習！
-    </div>
+    <div id="question-text" class="question-text"></div>
 
     <div class="array-wrapper">
       <div id="array-label" class="array-label"></div>
-      <div id="dot-grid" class="dot-grid">
-        <!-- 這裡用 JS 動態生成圓球陣列 -->
-      </div>
+      <div id="dot-grid" class="dot-grid"></div>
     </div>
+
+    <!-- 🔻🔻🔻 把這整塊搬到這裡 🔻🔻🔻 -->
+
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="area" id="mode-area">面積模式</button>
+      <button class="mode-btn" data-mode="groupColor" id="mode-group">顏色分組模式（幾個一數）</button>
+    </div>
+
+    <div class="mode-switch" style="margin-top:6px;">
+      <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">普通（1~5）</button>
+      <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">困難（1~9）</button>
+    </div>
+
+    <div class="controls">
+      <button id="new-question-btn">下一題</button>
+      <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
+      <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
+    </div>
+
+    <!-- 🔺🔺🔺 控制區結束 🔺🔺🔺 -->
 
     <div class="equation">
       <span id="factor-a" class="factor">?</span>
@@ -288,7 +275,7 @@
       <span id="factor-b" class="factor">?</span>
       <span class="symbol">=</span>
       <input id="answer-input" type="number" placeholder="？" />
-      <button id="check-btn">☑️檢查</button>
+      <button id="check-btn">檢查</button>
     </div>
 
     <div id="feedback" class="feedback"></div>
