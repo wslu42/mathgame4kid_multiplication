@@ -294,6 +294,7 @@
     let totalCount = 0;
     let currentMode = 'area'; // 'area' | 'groupColor'
     let currentDifficulty = 'easy'; // 'easy' | 'hard'
+    let currentQuestionAnsweredCorrect = false; // ✅ 這題是否已經答對
 
     const dotGridEl = document.getElementById('dot-grid');
     const arrayLabelEl = document.getElementById('array-label');
@@ -447,6 +448,7 @@
       totalCount++;
       totalCountEl.textContent = totalCount;
 
+      currentQuestionAnsweredCorrect = false;   // ✅ 新題目還沒答對
       renderCurrentQuestionVisual();
       speakQuestion();   // 出新題目時自動朗讀
     }
@@ -463,8 +465,16 @@
       if (userValue === correct) {
         feedbackEl.textContent = '太棒了！答對 🎉';
         feedbackEl.className = 'feedback ok';
-        correctCount++;
-        correctCountEl.textContent = correctCount;
+        if (!currentQuestionAnsweredCorrect) {
+          // ✅ 這題第一次答對才加分
+          currentQuestionAnsweredCorrect = true;
+          correctCount++;
+          correctCountEl.textContent = correctCount;
+        } else {
+          // 已經答對過，再按就只重複稱讚，不再加分
+          // （這行可以不要，但留著比較清楚）
+          feedbackEl.textContent = '這題你已經答對囉 🎉';
+        }
       } else {
         feedbackEl.textContent = '再想想看，可以數一數點點～';
         feedbackEl.className = 'feedback bad';
