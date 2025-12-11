@@ -270,7 +270,7 @@
       font-size: 13px;
       color: #777;
       text-align: center;
-      margin-top: 0;   /* 縮小空白 */
+      margin-top: 0;
       min-height: 18px;
     }
 
@@ -300,7 +300,7 @@
       已答對：<span id="correct-count">0</span> 題 ／ 總題數：<span id="total-count">0</span>
     </div>
 
-    <!-- ⭐ / 勳章 區（移除連續答對） -->
+    <!-- ⭐ / 勳章 區 -->
     <div class="reward-panel">
       <div class="reward-row">
         <span class="reward-label">星星任務：</span>
@@ -335,7 +335,6 @@
       <div id="array-label" class="array-label"></div>
       <div id="dot-grid" class="dot-grid"></div>
     </div>
-
 
     <div id="hint" class="hint">
       小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。
@@ -377,9 +376,10 @@
     let currentMode = 'area';
     let currentDifficulty = 'easy';
     let currentQuestionAnsweredCorrect = false;
+    let autoNextTimer = null;   // ✅ 答對後自動下一題用的計時器
 
     // gamification
-    const STAR_GOAL = 6;   // ⭐ 6 顆就拿一枚勳章
+    const STAR_GOAL = 6;
     let starProgress = 0;
     const animalBadgeDefs = [
       { icon: '🐭', name: '小老鼠' },
@@ -553,6 +553,12 @@
 
     // 出新題
     function newQuestion() {
+      // 先清掉可能存在的自動下一題計時器
+      if (autoNextTimer !== null) {
+        clearTimeout(autoNextTimer);
+        autoNextTimer = null;
+      }
+
       const max = currentDifficulty === 'easy' ? 5 : 9;
       currentA = randomInt(1, max);
       currentB = randomInt(1, max);
@@ -603,6 +609,11 @@
           // 首次答對：加一顆星星
           starProgress++;
           awardBadgeIfNeeded();
+
+          // ✅ 1 秒後自動出下一題
+          autoNextTimer = setTimeout(() => {
+            newQuestion();
+          }, 1000);
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
