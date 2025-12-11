@@ -374,6 +374,10 @@
     let currentQuestionAnsweredCorrect = false;
     let autoNextTimer = null;   // 答對後自動下一題用的計時器（目前未啟用）
 
+    // 新增：記錄上一題（避免連兩題一樣，3×5 與 5×3 視為相同）
+    let prevA = null;
+    let prevB = null;
+
     // gamification
     let starProgress = 0;
     const animalBadgeDefs = [
@@ -415,7 +419,7 @@
     const badgeListEl = document.getElementById('badge-list');
 
     // 音效
-    const sndCorrect = new Audio("sounds/076741_chimes-40066.mp3");
+    const sndCorrect = new Audio("sounds/c076741_chimes-40066.mp3");
     const sndWrong = new Audio("sounds/error-126627.mp3");
     const sndBadge = new Audio("sounds/echo-chime-chime-89653.mp3");
 
@@ -653,12 +657,12 @@
 
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = 'zh-TW';
-      msg.rate = 1.20;
+      msg.rate = 1.5;
 
       window.speechSynthesis.speak(msg);
     }
 
-    // 出新題
+    // 出新題（加入避免連續重複機制）
     function newQuestion() {
       // 清掉可能存在的自動下一題計時器
       if (autoNextTimer !== null) {
@@ -666,9 +670,34 @@
         autoNextTimer = null;
       }
 
-      const { a, b } = pickFactorsForCurrentLevel();
+      let a, b;
+      let tries = 0;
+      const MAX_TRIES = 20;
+
+      do {
+        const picked = pickFactorsForCurrentLevel();
+        a = picked.a;
+        b = picked.b;
+        tries++;
+
+        // 若上一題尚未設定，直接跳出
+        if (prevA === null || prevB === null) break;
+
+        // 檢查是否與上一題相同（3×5 與 5×3 視為一樣）
+      } while (
+        tries < MAX_TRIES &&
+        (
+          (a === prevA && b === prevB) ||
+          (a === prevB && b === prevA)
+        )
+      );
+
       currentA = a;
       currentB = b;
+
+      // 更新「上一題」記錄
+      prevA = currentA;
+      prevB = currentB;
 
       factorAEl.textContent = currentA;
       factorBEl.textContent = currentB;
@@ -721,11 +750,10 @@
           starProgress++;
           awardBadgeIfNeeded();
 
-          // ✅ 1 秒後自動出下一題
-          autoNextTimer = setTimeout(() => {
-            newQuestion();
-          }, 1000);
-
+          // 若之後你想重新開啟「1秒後自動下一題」，可把下面解除註解
+          // autoNextTimer = setTimeout(() => {
+          //   newQuestion();
+          // }, 1000);
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
@@ -773,5 +801,6 @@
     updateBadgeDisplay();
     newQuestion();
   </script>
+
 </body>
 </html>
