@@ -415,7 +415,7 @@
     const badgeListEl = document.getElementById('badge-list');
 
     // 音效
-    const sndCorrect = new Audio("sounds/076741_chimes-40066.mp3");
+    const sndCorrect = new Audio("sounds/c076741_chimes-40066.mp3");
     const sndWrong = new Audio("sounds/error-126627.mp3");
     const sndBadge = new Audio("sounds/echo-chime-chime-89653.mp3");
 
@@ -653,7 +653,7 @@
 
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = 'zh-TW';
-      msg.rate = 1.20;
+      msg.rate = 0.95;
 
       window.speechSynthesis.speak(msg);
     }
@@ -721,11 +721,10 @@
           starProgress++;
           awardBadgeIfNeeded();
 
-          // ✅ 1 秒後自動出下一題
-          autoNextTimer = setTimeout(() => {
-            newQuestion();
-          }, 1000);
-
+          // 若之後你想重新開啟「1秒後自動下一題」，可把下面解除註解
+          // autoNextTimer = setTimeout(() => {
+          //   newQuestion();
+          // }, 1000);
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
