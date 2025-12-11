@@ -496,7 +496,10 @@
         feedbackEl.className = 'feedback ok';
 
         // 語音提示：獲得 XXX 徽章了
+        sndBadge.currentTime = 0;
+        sndBadge.play();
         speakEffect(`獲得${def.name}徽章了`, 1.2);
+
 
         // 徽章數改變 → 重新依新門檻建立星星列
         initStarTrack();
