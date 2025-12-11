@@ -437,7 +437,7 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    // ---------- 語音小工具（音效） ----------
+    // ---------- 語音小工具（用於徽章提示） ----------
     function speakEffect(text, rate = 1.0) {
       if (!('speechSynthesis' in window)) return;
       const msg = new SpeechSynthesisUtterance(text);
@@ -495,13 +495,10 @@
         feedbackEl.textContent = `恭喜獲得動物勳章：${def.icon} ${def.name}！`;
         feedbackEl.className = 'feedback ok';
 
-        // 語音提示：獲得 XXX 徽章了
         sndBadge.currentTime = 0;
         sndBadge.play();
         speakEffect(`獲得${def.name}徽章了`, 1.2);
 
-
-        // 徽章數改變 → 重新依新門檻建立星星列
         initStarTrack();
       } else {
         updateStarDisplay();
@@ -623,7 +620,7 @@
       speakQuestion();
     }
 
-    // 檢查答案
+    // 檢查答案 + ✅ 1 秒後自動下一題
     function checkAnswer() {
       if (currentA === null || currentB === null) return;
       const userValue = parseInt(answerInputEl.value, 10);
@@ -640,10 +637,9 @@
         if (!currentQuestionAnsweredCorrect) {
           currentQuestionAnsweredCorrect = true;
 
-          // 🔊 播放答對音效
+          // 播放答對音效
           sndCorrect.currentTime = 0;
           sndCorrect.play();
-          // speakEffect('叮咚叮咚', 1.2);
 
           feedbackEl.textContent = '太棒了！答對 🎉';
           feedbackEl.className = 'feedback ok';
@@ -651,15 +647,15 @@
           correctCount++;
           correctCountEl.textContent = correctCount;
 
-
           // 首次答對：加一顆星星
           starProgress++;
           awardBadgeIfNeeded();
 
-          // // 1 秒後自動出下一題
-          // autoNextTimer = setTimeout(() => {
-          //   newQuestion();
-          // }, 1000);
+          // ✅ 1 秒後自動出下一題
+          autoNextTimer = setTimeout(() => {
+            newQuestion();
+          }, 1000);
+
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
@@ -671,7 +667,6 @@
         // 答錯音效
         sndWrong.currentTime = 0;
         sndWrong.play();
-        // speakEffect('嘟嘟', 1.0);
       }
     }
 
