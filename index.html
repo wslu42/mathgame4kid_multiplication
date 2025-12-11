@@ -282,7 +282,6 @@
       小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。
     </div>
   </div>
-
   <script>
     // === 狀態 ===
     let currentA = null;    // 排數或「組數」
@@ -291,7 +290,25 @@
     let totalCount = 0;
     let currentMode = 'area'; // 'area' | 'groupColor'
     let currentDifficulty = 'easy'; // 'easy' | 'hard'
-    let currentQuestionAnsweredCorrect = false; // ✅ 這題是否已經答對
+    let currentQuestionAnsweredCorrect = false;
+
+    // gamification
+    const STAR_GOAL = 10;
+    let starProgress = 0;      // 0..STAR_GOAL
+    let streak = 0;            // 連續首次答對
+    const animalBadgeDefs = [
+      { icon: '🐭', name: '小老鼠' },
+      { icon: '🐰', name: '小兔子' },
+      { icon: '🐱', name: '小貓咪' },
+      { icon: '🐶', name: '小狗狗' },
+      { icon: '🐯', name: '小老虎' },
+      { icon: '🐻', name: '小熊熊' },
+      { icon: '🦁', name: '小獅子' },
+      { icon: '🐘', name: '小大象' },
+      { icon: '🦒', name: '小長頸鹿' },
+      { icon: '🐳', name: '小鯨魚' }
+    ];
+    let earnedBadges = [];
 
     const dotGridEl = document.getElementById('dot-grid');
     const arrayLabelEl = document.getElementById('array-label');
@@ -315,24 +332,66 @@
     const difficultyEasyBtn = document.getElementById('difficulty-easy');
     const difficultyHardBtn = document.getElementById('difficulty-hard');
 
-    // 難度按鈕
-    difficultyEasyBtn.addEventListener('click', () => {
-      currentDifficulty = 'easy';
-      difficultyEasyBtn.classList.add('active');
-      difficultyHardBtn.classList.remove('active');
-      newQuestion(); // 自動換題
-    });
-
-    difficultyHardBtn.addEventListener('click', () => {
-      currentDifficulty = 'hard';
-      difficultyHardBtn.classList.add('active');
-      difficultyEasyBtn.classList.remove('active');
-      newQuestion(); // 自動換題
-    });
+    // reward DOM
+    const starTrackEl = document.getElementById('star-track');
+    const starCountTextEl = document.getElementById('star-count-text');
+    const streakTextEl = document.getElementById('streak-text');
+    const badgeListEl = document.getElementById('badge-list');
 
     // 產生 [min, max] 的隨機整數
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // 初始化星星列
+    function initStarTrack() {
+      starTrackEl.innerHTML = '';
+      for (let i = 0; i < STAR_GOAL; i++) {
+        const span = document.createElement('span');
+        span.className = 'star';
+        span.textContent = '★';
+        starTrackEl.appendChild(span);
+      }
+      updateStarDisplay();
+    }
+
+    function updateStarDisplay() {
+      const stars = starTrackEl.querySelectorAll('.star');
+      stars.forEach((star, idx) => {
+        star.classList.toggle('on', idx < starProgress);
+      });
+      starCountTextEl.textContent = `${starProgress} / ${STAR_GOAL}`;
+    }
+
+    function updateStreakDisplay() {
+      if (streak <= 0) {
+        streakTextEl.textContent = '—';
+      } else {
+        streakTextEl.textContent = `🔥 x${streak}`;
+      }
+    }
+
+    function updateBadgeDisplay() {
+      if (earnedBadges.length === 0) {
+        badgeListEl.innerHTML = '<span class="badge-empty">還沒有，慢慢收集～</span>';
+      } else {
+        badgeListEl.textContent = earnedBadges.map(b => b.icon).join(' ');
+      }
+    }
+
+    function awardBadgeIfNeeded() {
+      if (starProgress >= STAR_GOAL) {
+        starProgress = 0;
+        const nextIndex = earnedBadges.length;
+        const def = animalBadgeDefs[nextIndex] || { icon: '🏅', name: '神祕勳章' };
+        earnedBadges.push(def);
+        updateBadgeDisplay();
+
+        // 額外給一點文字鼓勵
+        feedbackEl.textContent = `恭喜獲得動物勳章：${def.icon} ${def.name}！`;
+        feedbackEl.className = 'feedback ok';
+      }
+      updateStarDisplay();
     }
 
     // 面積模式：一般點點陣列
@@ -350,42 +409,12 @@
       }
     }
 
-    function speakQuestion() {
-      if (currentA === null || currentB === null) return;
-
-      // 如果瀏覽器不支援語音，直接跳出
-      if (!('speechSynthesis' in window)) return;
-
-      let text = "";
-
-      if (currentMode === "area") {
-        // 面積模式：排 × 每排幾顆
-        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
-              `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
-      } else if (currentMode === "groupColor") {
-        // 顏色分組模式：組 × 每組幾顆
-        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
-              `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
-              `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
-      }
-
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = "zh-TW";   // 語言：台灣中文
-      msg.rate = 0.95;      // 稍微慢一點給 6 歲小孩聽
-
-      // 先停止前一次朗讀，避免重疊
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(msg);
-    }
-
-
-    // 顏色分組模式：同一排同色，突顯「一組」
+    // 顏色分組模式：同一排同色
     function renderDotGridGrouped(rows, cols) {
       dotGridEl.innerHTML = '';
       for (let r = 0; r < rows; r++) {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'dot-row';
-
         const hue = (r * 70) % 360;
         const fillColor = `hsl(${hue}, 90%, 80%)`;
         const borderColor = `hsl(${hue}, 70%, 50%)`;
@@ -401,6 +430,7 @@
       }
     }
 
+    // 根據 currentMode 把目前題目畫出來 & 更新文字
     function renderCurrentQuestionVisual() {
       if (currentA === null || currentB === null) {
         dotGridEl.innerHTML = '';
@@ -413,13 +443,14 @@
 
       if (currentMode === 'area') {
         renderDotGrid(a, b);
-        arrayLabelEl.textContent = `這裡有 ${a} 排，每排 ${b} 顆球。請算一算：${a} × ${b} 等於多少`;
+        arrayLabelEl.textContent =
+          `這裡有 ${a} 排，每排 ${b} 顆球。請算一算：${a} × ${b} 等於多少？`;
         subtitleEl.textContent = '看圓球陣列，想一想：幾排 × 每排幾個？';
         hintEl.textContent = '小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。';
-      } else if (currentMode === 'groupColor') {
+      } else {
         renderDotGridGrouped(a, b);
         arrayLabelEl.textContent =
-          `這裡有 ${a} 組，每組 ${b} 顆球。可以想成「${b} 個一數」，數了 ${a} 次。請算一算：${a} × ${b} 等於多少`;
+          `這裡有 ${a} 組，每組 ${b} 顆球。可以想成「${b} 個一數」，數了 ${a} 次。請算一算：${a} × ${b} 等於多少？`;
         const seq = [];
         for (let i = 1; i <= a; i++) seq.push(i * b);
         subtitleEl.textContent = '用顏色分組，看一看：有幾組？每組幾個？';
@@ -427,6 +458,29 @@
       }
     }
 
+    function speakQuestion() {
+      if (currentA === null || currentB === null) return;
+      if (!('speechSynthesis' in window)) return;
+
+      let text = '';
+      if (currentMode === 'area') {
+        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
+               `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+      } else {
+        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
+               `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
+               `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+      }
+
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = 0.95;
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(msg);
+    }
+
+    // 建立下一題
     function newQuestion() {
       const max = currentDifficulty === 'easy' ? 5 : 9;
       currentA = randomInt(1, max);
@@ -434,6 +488,7 @@
 
       factorAEl.textContent = currentA;
       factorBEl.textContent = currentB;
+      questionTextEl.textContent = '';
 
       answerInputEl.value = '';
       answerInputEl.focus();
@@ -445,66 +500,105 @@
       totalCount++;
       totalCountEl.textContent = totalCount;
 
-      currentQuestionAnsweredCorrect = false;   // ✅ 新題目還沒答對
+      currentQuestionAnsweredCorrect = false;
+
       renderCurrentQuestionVisual();
-      speakQuestion();   // 出新題目時自動朗讀
+      speakQuestion();
     }
 
+    // 檢查答案
     function checkAnswer() {
       if (currentA === null || currentB === null) return;
       const userValue = parseInt(answerInputEl.value, 10);
+
       if (isNaN(userValue)) {
         feedbackEl.textContent = '先輸入一個數字喔！';
         feedbackEl.className = 'feedback bad';
         return;
       }
+
       const correct = currentA * currentB;
+
       if (userValue === correct) {
-        feedbackEl.textContent = '太棒了！答對 🎉';
-        feedbackEl.className = 'feedback ok';
         if (!currentQuestionAnsweredCorrect) {
-          // ✅ 這題第一次答對才加分
           currentQuestionAnsweredCorrect = true;
+
+          feedbackEl.textContent = '太棒了！答對 🎉';
+          feedbackEl.className = 'feedback ok';
+
           correctCount++;
           correctCountEl.textContent = correctCount;
+
+          // 首次答對 → combo + 星星
+          streak++;
+          starProgress++;
+          updateStreakDisplay();
+          awardBadgeIfNeeded();
         } else {
-          // 已經答對過，再按就只重複稱讚，不再加分
-          // （這行可以不要，但留著比較清楚）
+          // 同一題重複按檢查
           feedbackEl.textContent = '這題你已經答對囉 🎉';
+          feedbackEl.className = 'feedback ok';
         }
       } else {
         feedbackEl.textContent = '再想想看，可以數一數點點～';
         feedbackEl.className = 'feedback bad';
+
+        // 若這題還沒答對過，錯一次就中斷連擊
+        if (!currentQuestionAnsweredCorrect) {
+          streak = 0;
+          updateStreakDisplay();
+        }
       }
     }
 
+    // 顯示正確答案
     function showAnswer() {
       if (currentA === null || currentB === null) return;
       const correct = currentA * currentB;
       answerRevealEl.textContent = `正確答案是：${currentA} × ${currentB} = ${correct}`;
     }
 
+    // 切換模式
     function setMode(mode) {
       if (mode !== 'area' && mode !== 'groupColor') return;
       currentMode = mode;
       modeAreaBtn.classList.toggle('active', mode === 'area');
       modeGroupBtn.classList.toggle('active', mode === 'groupColor');
       renderCurrentQuestionVisual();
-      speakQuestion();   // 出新題目時自動朗讀
+      speakQuestion();
     }
 
-    // 綁定事件
+    // === 綁定事件 ===
     newQuestionBtn.addEventListener('click', newQuestion);
     checkBtn.addEventListener('click', checkAnswer);
     showAnswerBtn.addEventListener('click', showAnswer);
+    speakBtn.addEventListener('click', speakQuestion);
+
     answerInputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') checkAnswer();
     });
+
     modeAreaBtn.addEventListener('click', () => setMode('area'));
     modeGroupBtn.addEventListener('click', () => setMode('groupColor'));
-    speakBtn.addEventListener('click', speakQuestion);
 
-    // 一載入就先出一題
+    difficultyEasyBtn.addEventListener('click', () => {
+      currentDifficulty = 'easy';
+      difficultyEasyBtn.classList.add('active');
+      difficultyHardBtn.classList.remove('active');
+      newQuestion();
+    });
+
+    difficultyHardBtn.addEventListener('click', () => {
+      currentDifficulty = 'hard';
+      difficultyHardBtn.classList.add('active');
+      difficultyEasyBtn.classList.remove('active');
+      newQuestion();
+    });
+
+    // 初始化獎勵區 & 出第一題
+    initStarTrack();
+    updateStreakDisplay();
+    updateBadgeDisplay();
     newQuestion();
   </script>
 
