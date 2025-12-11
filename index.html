@@ -96,12 +96,6 @@
       white-space: nowrap;
     }
 
-    .streak-text {
-      font-size: 13px;
-      color: #e67e22;
-      font-weight: 600;
-    }
-
     .badge-list {
       font-size: 18px;
     }
@@ -276,7 +270,7 @@
       font-size: 13px;
       color: #777;
       text-align: center;
-      margin-top: 8px;
+      margin-top: 0;   /* 縮小空白 */
       min-height: 18px;
     }
 
@@ -306,16 +300,12 @@
       已答對：<span id="correct-count">0</span> 題 ／ 總題數：<span id="total-count">0</span>
     </div>
 
-    <!-- ⭐ / 🔥 / 勳章 區 -->
+    <!-- ⭐ / 勳章 區（移除連續答對） -->
     <div class="reward-panel">
       <div class="reward-row">
         <span class="reward-label">星星任務：</span>
         <div class="star-track" id="star-track"></div>
-        <span class="star-count-text" id="star-count-text">0 / 10</span>
-      </div>
-      <div class="reward-row">
-        <span class="reward-label">連續答對：</span>
-        <span class="streak-text" id="streak-text">—</span>
+        <span class="star-count-text" id="star-count-text">0 / 6</span>
       </div>
       <div class="reward-row">
         <span class="reward-label">動物勳章：</span>
@@ -334,7 +324,7 @@
       <div id="dot-grid" class="dot-grid"></div>
     </div>
 
-    <!-- 把 朗讀 / 檢查 / 下一題 放在等號那一排 -->
+    <!-- 式子 + 控制鍵 -->
     <div class="equation">
       <span id="factor-a" class="factor">?</span>
       <span class="symbol">×</span>
@@ -353,7 +343,7 @@
       小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。
     </div>
 
-    <!-- 模式與難度放在最底下 -->
+    <!-- 模式＆難度 -->
     <div class="mode-switch">
       <button class="mode-btn active" data-mode="area" id="mode-area">
         🟢🟢面積模式
@@ -383,14 +373,13 @@
     let currentB = null;
     let correctCount = 0;
     let totalCount = 0;
-    let currentMode = 'area';     // 'area' | 'groupColor'
+    let currentMode = 'area';
     let currentDifficulty = 'easy';
     let currentQuestionAnsweredCorrect = false;
 
     // gamification
-    const STAR_GOAL = 10;
+    const STAR_GOAL = 6;   // ⭐ 6 顆就拿一枚勳章
     let starProgress = 0;
-    let streak = 0;
     const animalBadgeDefs = [
       { icon: '🐭', name: '小老鼠' },
       { icon: '🐰', name: '小兔子' },
@@ -418,21 +407,19 @@
     const subtitleEl = document.getElementById('subtitle');
     const hintEl = document.getElementById('hint');
 
-    const newQuestionBtn  = document.getElementById('new-question-btn');
-    const checkBtn        = document.getElementById('check-btn');
-    const showAnswerBtn   = document.getElementById('show-answer-btn');
-    const modeAreaBtn     = document.getElementById('mode-area');
-    const modeGroupBtn    = document.getElementById('mode-group');
-    const speakBtn        = document.getElementById('speak-btn');
-    const difficultyEasyBtn  = document.getElementById('difficulty-easy');
-    const difficultyHardBtn  = document.getElementById('difficulty-hard');
+    const newQuestionBtn = document.getElementById('new-question-btn');
+    const checkBtn = document.getElementById('check-btn');
+    const showAnswerBtn = document.getElementById('show-answer-btn');
+    const modeAreaBtn = document.getElementById('mode-area');
+    const modeGroupBtn = document.getElementById('mode-group');
+    const speakBtn = document.getElementById('speak-btn');
+    const difficultyEasyBtn = document.getElementById('difficulty-easy');
+    const difficultyHardBtn = document.getElementById('difficulty-hard');
 
-    const starTrackEl     = document.getElementById('star-track');
+    const starTrackEl = document.getElementById('star-track');
     const starCountTextEl = document.getElementById('star-count-text');
-    const streakTextEl    = document.getElementById('streak-text');
-    const badgeListEl     = document.getElementById('badge-list');
+    const badgeListEl = document.getElementById('badge-list');
 
-    // 工具：隨機整數
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -455,14 +442,6 @@
         star.classList.toggle('on', idx < starProgress);
       });
       starCountTextEl.textContent = `${starProgress} / ${STAR_GOAL}`;
-    }
-
-    function updateStreakDisplay() {
-      if (streak <= 0) {
-        streakTextEl.textContent = '—';
-      } else {
-        streakTextEl.textContent = `🔥 x${streak}`;
-      }
     }
 
     function updateBadgeDisplay() {
@@ -620,9 +599,8 @@
           correctCount++;
           correctCountEl.textContent = correctCount;
 
-          streak++;
+          // 首次答對：加一顆星星
           starProgress++;
-          updateStreakDisplay();
           awardBadgeIfNeeded();
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
@@ -631,11 +609,6 @@
       } else {
         feedbackEl.textContent = '再想想看，可以數一數點點～';
         feedbackEl.className = 'feedback bad';
-
-        if (!currentQuestionAnsweredCorrect) {
-          streak = 0;
-          updateStreakDisplay();
-        }
       }
     }
 
@@ -683,7 +656,6 @@
 
     // 初始化 & 第一題
     initStarTrack();
-    updateStreakDisplay();
     updateBadgeDisplay();
     newQuestion();
   </script>
