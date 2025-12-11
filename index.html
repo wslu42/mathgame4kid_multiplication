@@ -305,7 +305,7 @@
       <div class="reward-row">
         <span class="reward-label">星星任務：</span>
         <div class="star-track" id="star-track"></div>
-        <span class="star-count-text" id="star-count-text">0 / 6</span>
+        <span class="star-count-text" id="star-count-text">0 / 2</span>
       </div>
       <div class="reward-row">
         <span class="reward-label">動物勳章：</span>
@@ -376,10 +376,9 @@
     let currentMode = 'area';
     let currentDifficulty = 'easy';
     let currentQuestionAnsweredCorrect = false;
-    let autoNextTimer = null;   // ✅ 答對後自動下一題用的計時器
+    let autoNextTimer = null;   // 答對後自動下一題用的計時器
 
     // gamification
-    const STAR_GOAL = 6;
     let starProgress = 0;
     const animalBadgeDefs = [
       { icon: '🐭', name: '小老鼠' },
@@ -421,14 +420,24 @@
     const starCountTextEl = document.getElementById('star-count-text');
     const badgeListEl = document.getElementById('badge-list');
 
+    // 依目前徽章數決定當前星星門檻
+    function getStarGoal() {
+      const badgeCount = earnedBadges.length;
+      if (badgeCount === 0) return 2;
+      if (badgeCount === 1) return 3;
+      if (badgeCount === 2) return 4;
+      return 6;
+    }
+
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     // 初始化星星列
     function initStarTrack() {
+      const goal = getStarGoal();
       starTrackEl.innerHTML = '';
-      for (let i = 0; i < STAR_GOAL; i++) {
+      for (let i = 0; i < goal; i++) {
         const span = document.createElement('span');
         span.className = 'star';
         span.textContent = '★';
@@ -438,11 +447,12 @@
     }
 
     function updateStarDisplay() {
+      const goal = getStarGoal();
       const stars = starTrackEl.querySelectorAll('.star');
       stars.forEach((star, idx) => {
         star.classList.toggle('on', idx < starProgress);
       });
-      starCountTextEl.textContent = `${starProgress} / ${STAR_GOAL}`;
+      starCountTextEl.textContent = `${Math.min(starProgress, goal)} / ${goal}`;
     }
 
     function updateBadgeDisplay() {
@@ -454,17 +464,29 @@
     }
 
     function awardBadgeIfNeeded() {
-      if (starProgress >= STAR_GOAL) {
+      const goal = getStarGoal();
+      if (starProgress >= goal) {
         starProgress = 0;
         const nextIndex = earnedBadges.length;
         const def = animalBadgeDefs[nextIndex] || { icon: '🏅', name: '神祕勳章' };
         earnedBadges.push(def);
         updateBadgeDisplay();
 
+        // 拿到第 5 枚徽章後，自動切換成困難模式
+        if (earnedBadges.length === 5) {
+          currentDifficulty = 'hard';
+          difficultyHardBtn.classList.add('active');
+          difficultyEasyBtn.classList.remove('active');
+        }
+
         feedbackEl.textContent = `恭喜獲得動物勳章：${def.icon} ${def.name}！`;
         feedbackEl.className = 'feedback ok';
+
+        // 徽章數改變 → 重新依新門檻建立星星列
+        initStarTrack();
+      } else {
+        updateStarDisplay();
       }
-      updateStarDisplay();
     }
 
     // 畫陣列
@@ -553,7 +575,7 @@
 
     // 出新題
     function newQuestion() {
-      // 先清掉可能存在的自動下一題計時器
+      // 清掉可能存在的自動下一題計時器
       if (autoNextTimer !== null) {
         clearTimeout(autoNextTimer);
         autoNextTimer = null;
@@ -610,7 +632,7 @@
           starProgress++;
           awardBadgeIfNeeded();
 
-          // ✅ 1 秒後自動出下一題
+          // 1 秒後自動出下一題
           autoNextTimer = setTimeout(() => {
             newQuestion();
           }, 1000);
