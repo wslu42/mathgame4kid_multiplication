@@ -751,9 +751,9 @@
           awardBadgeIfNeeded();
 
           // 若之後你想重新開啟「1秒後自動下一題」，可把下面解除註解
-          // autoNextTimer = setTimeout(() => {
-          //   newQuestion();
-          // }, 1000);
+          autoNextTimer = setTimeout(() => {
+            newQuestion();
+          }, 1000);
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
