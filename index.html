@@ -308,7 +308,6 @@
     let currentMode = 'area'; // 'area' | 'groupColor'
     let currentDifficulty = 'easy'; // 'easy' | 'hard'
 
-
     const dotGridEl = document.getElementById('dot-grid');
     const arrayLabelEl = document.getElementById('array-label');
     const factorAEl = document.getElementById('factor-a');
@@ -328,13 +327,10 @@
     const modeAreaBtn = document.getElementById('mode-area');
     const modeGroupBtn = document.getElementById('mode-group');
     const speakBtn = document.getElementById('speak-btn');
-
-<<<<<<< HEAD
-
-=======
     const difficultyEasyBtn = document.getElementById('difficulty-easy');
     const difficultyHardBtn = document.getElementById('difficulty-hard');
 
+    // 難度按鈕
     difficultyEasyBtn.addEventListener('click', () => {
       currentDifficulty = 'easy';
       difficultyEasyBtn.classList.add('active');
@@ -349,8 +345,6 @@
       newQuestion(); // 自動換題
     });
 
-
->>>>>>> bdcc7bdd246e0a13f93c6460f9f34fc40a1a57e9
     // 產生 [min, max] 的隨機整數
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -365,7 +359,6 @@
         for (let c = 0; c < cols; c++) {
           const dot = document.createElement('div');
           dot.className = 'dot';
-          // 使用預設樣式，不另外上色
           rowDiv.appendChild(dot);
         }
         dotGridEl.appendChild(rowDiv);
@@ -375,20 +368,18 @@
     function speakQuestion() {
       if (currentA === null || currentB === null) return;
 
-      let text = "";
-
-      if (currentMode === "area") {
+      let text = '';
+      if (currentMode === 'area') {
         text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。`;
-      } else if (currentMode === "groupColor") {
+      } else if (currentMode === 'groupColor') {
         text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。`;
       }
 
       const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = "zh-TW";  // 語言：台灣中文（最接近你想要的朗讀）
-      msg.rate = 1.0;      // 朗讀速度（可調低為 0.9 讓小孩更好理解）
+      msg.lang = 'zh-TW';
+      msg.rate = 1.0;
       window.speechSynthesis.speak(msg);
     }
-
 
     // 顏色分組模式：同一排同色，突顯「一組」
     function renderDotGridGrouped(rows, cols) {
@@ -397,7 +388,6 @@
         const rowDiv = document.createElement('div');
         rowDiv.className = 'dot-row';
 
-        // 為每一排產生不同色（HSL）
         const hue = (r * 70) % 360;
         const fillColor = `hsl(${hue}, 90%, 80%)`;
         const borderColor = `hsl(${hue}, 70%, 50%)`;
@@ -413,7 +403,6 @@
       }
     }
 
-    // 根據 currentMode 把目前題目畫出來 & 更新文字
     function renderCurrentQuestionVisual() {
       if (currentA === null || currentB === null) {
         dotGridEl.innerHTML = '';
@@ -431,32 +420,22 @@
         hintEl.textContent = '小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。';
       } else if (currentMode === 'groupColor') {
         renderDotGridGrouped(a, b);
-
         arrayLabelEl.textContent =
           `這裡有 ${a} 組，每組 ${b} 顆球。可以想成「${b} 個一數」，數了 ${a} 次。`;
-        subtitleEl.textContent =
-          '用顏色分組，看一看：有幾組？每組幾個？';
-        // 做一個簡短的 skip counting 提示：b, 2b, 3b...
         const seq = [];
-        for (let i = 1; i <= a; i++) {
-          seq.push(i * b);
-        }
-        hintEl.textContent =
-          `小提示：用「${b} 個一數」來數：` + seq.join('、') + '。';
+        for (let i = 1; i <= a; i++) seq.push(i * b);
+        subtitleEl.textContent = '用顏色分組，看一看：有幾組？每組幾個？';
+        hintEl.textContent = `小提示：用「${b} 個一數」來數：` + seq.join('、') + '。';
       }
     }
 
-    // 建立下一題
     function newQuestion() {
-      // 先簡單用 1~9
-      let max = (currentDifficulty === 'easy') ? 5 : 9;
+      const max = currentDifficulty === 'easy' ? 5 : 9;
       currentA = randomInt(1, max);
       currentB = randomInt(1, max);
 
-
       factorAEl.textContent = currentA;
       factorBEl.textContent = currentB;
-
       questionTextEl.textContent = `請算一算：${currentA} × ${currentB} = ？`;
 
       answerInputEl.value = '';
@@ -472,17 +451,14 @@
       renderCurrentQuestionVisual();
     }
 
-    // 檢查答案
     function checkAnswer() {
       if (currentA === null || currentB === null) return;
       const userValue = parseInt(answerInputEl.value, 10);
-
       if (isNaN(userValue)) {
         feedbackEl.textContent = '先輸入一個數字喔！';
         feedbackEl.className = 'feedback bad';
         return;
       }
-
       const correct = currentA * currentB;
       if (userValue === correct) {
         feedbackEl.textContent = '太棒了！答對 🎉';
@@ -495,45 +471,34 @@
       }
     }
 
-    // 顯示正確答案
     function showAnswer() {
       if (currentA === null || currentB === null) return;
       const correct = currentA * currentB;
       answerRevealEl.textContent = `正確答案是：${currentA} × ${currentB} = ${correct}`;
     }
 
-    // 切換模式
     function setMode(mode) {
       if (mode !== 'area' && mode !== 'groupColor') return;
       currentMode = mode;
-
-      // 更新按鈕外觀
       modeAreaBtn.classList.toggle('active', mode === 'area');
       modeGroupBtn.classList.toggle('active', mode === 'groupColor');
-
-      // 重新用目前題目畫一次
       renderCurrentQuestionVisual();
     }
 
-    // === 綁定事件 ===
+    // 綁定事件
     newQuestionBtn.addEventListener('click', newQuestion);
     checkBtn.addEventListener('click', checkAnswer);
     showAnswerBtn.addEventListener('click', showAnswer);
-
     answerInputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        checkAnswer();
-      }
+      if (e.key === 'Enter') checkAnswer();
     });
-
     modeAreaBtn.addEventListener('click', () => setMode('area'));
     modeGroupBtn.addEventListener('click', () => setMode('groupColor'));
-
     speakBtn.addEventListener('click', speakQuestion);
-
 
     // 一載入就先出一題
     newQuestion();
   </script>
+
 </body>
 </html>
