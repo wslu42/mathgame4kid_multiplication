@@ -263,8 +263,8 @@
 
     <div class="controls">
       <button id="new-question-btn">下一題</button>
-      <button id="speak-btn" class="secondary">朗讀題目</button>
-      <button id="show-answer-btn" class="secondary">顯示答案</button>
+      <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
+      <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
     </div>
 
     <div class="stats">
@@ -368,18 +368,31 @@
     function speakQuestion() {
       if (currentA === null || currentB === null) return;
 
-      let text = '';
-      if (currentMode === 'area') {
-        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。請算一算：${currentA} 成 ${currentB} 等於多少`;
-      } else if (currentMode === 'groupColor') {
-        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。可以想成「${currentB} 個一數」，數了 ${currentA} 次。請算一算：${currentA} 成 ${currentB} 等於多少`;        
+      // 如果瀏覽器不支援語音，直接跳出
+      if (!('speechSynthesis' in window)) return;
+
+      let text = "";
+
+      if (currentMode === "area") {
+        // 面積模式：排 × 每排幾顆
+        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
+              `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+      } else if (currentMode === "groupColor") {
+        // 顏色分組模式：組 × 每組幾顆
+        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
+              `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
+              `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
       }
 
       const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = 'zh-TW';
-      msg.rate = 1.0;
+      msg.lang = "zh-TW";   // 語言：台灣中文
+      msg.rate = 0.95;      // 稍微慢一點給 6 歲小孩聽
+
+      // 先停止前一次朗讀，避免重疊
+      window.speechSynthesis.cancel();
       window.speechSynthesis.speak(msg);
     }
+
 
     // 顏色分組模式：同一排同色，突顯「一組」
     function renderDotGridGrouped(rows, cols) {
@@ -448,6 +461,7 @@
       totalCountEl.textContent = totalCount;
 
       renderCurrentQuestionVisual();
+      speakQuestion();   // 出新題目時自動朗讀
     }
 
     function checkAnswer() {
@@ -482,6 +496,7 @@
       modeAreaBtn.classList.toggle('active', mode === 'area');
       modeGroupBtn.classList.toggle('active', mode === 'groupColor');
       renderCurrentQuestionVisual();
+      speakQuestion();   // 出新題目時自動朗讀
     }
 
     // 綁定事件
