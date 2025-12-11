@@ -335,29 +335,6 @@
     </div>
 
     <!-- 模式 & 難度 & 控制 -->
-    <div class="mode-switch">
-      <button class="mode-btn active" data-mode="area" id="mode-area">
-        面積模式
-      </button>
-      <button class="mode-btn" data-mode="groupColor" id="mode-group">
-        顏色分組模式（幾個一數）
-      </button>
-    </div>
-
-    <div class="mode-switch" style="margin-top:4px;">
-      <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
-        普通（1~5）
-      </button>
-      <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
-        困難（1~9）
-      </button>
-    </div>
-
-    <div class="controls">
-      <button id="new-question-btn">▶ 下一題</button>
-      <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
-      <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
-    </div>
 
     <div class="equation">
       <span id="factor-a" class="factor">?</span>
@@ -365,7 +342,9 @@
       <span id="factor-b" class="factor">?</span>
       <span class="symbol">=</span>
       <input id="answer-input" type="number" placeholder="？" />
-      <button id="check-btn">檢查</button>
+      <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
+      <button id="check-btn">☑️檢查</button>
+      <button id="new-question-btn">⏩Next</button>
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -374,6 +353,28 @@
     <div id="hint" class="hint">
       小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。
     </div>
+    
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="area" id="mode-area">
+        🟢🟢面積模式
+      </button>
+      <button class="mode-btn" data-mode="groupColor" id="mode-group">
+        🔴🟢顏色分組模式（幾個一數）
+      </button>
+    </div>
+
+    <div class="mode-switch" style="margin-top:4px;">
+      <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
+        🟢普通（1~5）
+      </button>
+      <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
+        🔴困難（1~9）
+      </button>
+    </div>
+<!-- 
+    <div class="controls">
+      <button id="show-answer-btn" class="secondary">ANSWER 答案</button>
+    </div> -->
   </div>
 
   <script>
@@ -559,11 +560,11 @@
       let text = '';
       if (currentMode === 'area') {
         text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
-               `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+               `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
       } else {
         text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
                `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
-               `請算一算：${currentA} 乘以 ${currentB} 等於多少？`;
+               `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
       }
 
       const msg = new SpeechSynthesisUtterance(text);
