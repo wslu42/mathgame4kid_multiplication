@@ -433,6 +433,15 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    // ---------- 語音小工具（音效） ----------
+    function speakEffect(text, rate = 1.0) {
+      if (!('speechSynthesis' in window)) return;
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'zh-TW';
+      msg.rate = rate;
+      window.speechSynthesis.speak(msg);
+    }
+
     // 初始化星星列
     function initStarTrack() {
       const goal = getStarGoal();
@@ -481,6 +490,9 @@
 
         feedbackEl.textContent = `恭喜獲得動物勳章：${def.icon} ${def.name}！`;
         feedbackEl.className = 'feedback ok';
+
+        // 語音提示：獲得 XXX 徽章了
+        speakEffect(`獲得${def.name}徽章了`, 1.2);
 
         // 徽章數改變 → 重新依新門檻建立星星列
         initStarTrack();
@@ -628,6 +640,9 @@
           correctCount++;
           correctCountEl.textContent = correctCount;
 
+          // 答對音效
+          speakEffect('叮咚叮咚', 1.2);
+
           // 首次答對：加一顆星星
           starProgress++;
           awardBadgeIfNeeded();
@@ -643,6 +658,9 @@
       } else {
         feedbackEl.textContent = '再想想看，可以數一數點點～';
         feedbackEl.className = 'feedback bad';
+
+        // 答錯音效
+        speakEffect('嘟嘟', 1.0);
       }
     }
 
