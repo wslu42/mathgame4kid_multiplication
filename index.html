@@ -251,6 +251,16 @@
       <!-- 預留：未來可以加入積木模式 -->
     </div>
 
+    <div class="mode-switch" style="margin-top:6px;">
+    <button class="mode-btn active" data-difficulty="easy" id="difficulty-easy">
+      普通（1~5）
+    </button>
+    <button class="mode-btn" data-difficulty="hard" id="difficulty-hard">
+      困難（1~9）
+    </button>
+    </div>
+
+
     <div class="controls">
       <button id="new-question-btn">下一題</button>
       <button id="show-answer-btn" class="secondary">顯示答案</button>
@@ -295,6 +305,8 @@
     let correctCount = 0;
     let totalCount = 0;
     let currentMode = 'area'; // 'area' | 'groupColor'
+    let currentDifficulty = 'easy'; // 'easy' | 'hard'
+
 
     const dotGridEl = document.getElementById('dot-grid');
     const arrayLabelEl = document.getElementById('array-label');
@@ -314,6 +326,24 @@
     const showAnswerBtn = document.getElementById('show-answer-btn');
     const modeAreaBtn = document.getElementById('mode-area');
     const modeGroupBtn = document.getElementById('mode-group');
+
+    const difficultyEasyBtn = document.getElementById('difficulty-easy');
+    const difficultyHardBtn = document.getElementById('difficulty-hard');
+
+    difficultyEasyBtn.addEventListener('click', () => {
+      currentDifficulty = 'easy';
+      difficultyEasyBtn.classList.add('active');
+      difficultyHardBtn.classList.remove('active');
+      newQuestion(); // 自動換題
+    });
+
+    difficultyHardBtn.addEventListener('click', () => {
+      currentDifficulty = 'hard';
+      difficultyHardBtn.classList.add('active');
+      difficultyEasyBtn.classList.remove('active');
+      newQuestion(); // 自動換題
+    });
+
 
     // 產生 [min, max] 的隨機整數
     function randomInt(min, max) {
@@ -395,8 +425,10 @@
     // 建立下一題
     function newQuestion() {
       // 先簡單用 1~9
-      currentA = randomInt(1, 9);
-      currentB = randomInt(1, 9);
+      let max = (currentDifficulty === 'easy') ? 5 : 9;
+      currentA = randomInt(1, max);
+      currentB = randomInt(1, max);
+
 
       factorAEl.textContent = currentA;
       factorBEl.textContent = currentB;
