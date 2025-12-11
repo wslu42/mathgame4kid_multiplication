@@ -415,13 +415,13 @@
 
       if (currentMode === 'area') {
         renderDotGrid(a, b);
-        arrayLabelEl.textContent = `這裡有 ${a} 排，每排 ${b} 顆球。`;
+        arrayLabelEl.textContent = `這裡有 ${a} 排，每排 ${b} 顆球。請算一算：${a} × ${b} 等於多少`;
         subtitleEl.textContent = '看圓球陣列，想一想：幾排 × 每排幾個？';
         hintEl.textContent = '小提示：可以先數「排數」，再數「每排幾顆」，最後把它們相乘。';
       } else if (currentMode === 'groupColor') {
         renderDotGridGrouped(a, b);
         arrayLabelEl.textContent =
-          `這裡有 ${a} 組，每組 ${b} 顆球。可以想成「${b} 個一數」，數了 ${a} 次。`;
+          `這裡有 ${a} 組，每組 ${b} 顆球。可以想成「${b} 個一數」，數了 ${a} 次。請算一算：${a} × ${b} 等於多少`;
         const seq = [];
         for (let i = 1; i <= a; i++) seq.push(i * b);
         subtitleEl.textContent = '用顏色分組，看一看：有幾組？每組幾個？';
@@ -436,7 +436,6 @@
 
       factorAEl.textContent = currentA;
       factorBEl.textContent = currentB;
-      questionTextEl.textContent = `請算一算：${currentA} × ${currentB} = ？`;
 
       answerInputEl.value = '';
       answerInputEl.focus();
