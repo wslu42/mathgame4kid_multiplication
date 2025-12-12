@@ -834,7 +834,8 @@
       questionTextEl.textContent = '';
 
       answerInputEl.value = '';
-      answerInputEl.focus();
+      if (!answerInputEl.readOnly) answerInputEl.focus();
+
 
       feedbackEl.textContent = '';
       feedbackEl.className = 'feedback';
