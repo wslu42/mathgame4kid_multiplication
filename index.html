@@ -287,6 +287,47 @@
         height: 18px;
       }
     }
+
+    .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .keypad .key {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-size: 20px;
+    background: #f3f5ff;
+    color: #21409a;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+  }
+
+  .keypad .key:active {
+    transform: translateY(1px);
+  }
+
+  .keypad .key-fn {
+    background: #e9ecff;
+    font-size: 16px;
+  }
+
+  .keypad .key-ok {
+    background: #4b7bec;
+    color: white;
+    font-size: 16px;
+  }
+
+  .keypad .key-wide {
+    grid-column: span 3;
+    background: #ffecec;
+    color: #b21f2d;
+    font-size: 18px;
+  }
+
   </style>
 </head>
 <body>
@@ -336,6 +377,28 @@
       <button id="check-btn">☑️檢查</button>
       <!-- <button id="new-question-btn">⏩Next</button> -->
     </div>
+
+    <!-- 數字鍵盤（適合 iPad / 觸控） -->
+    <div class="keypad" id="keypad" aria-label="數字鍵盤">
+      <button class="key" data-key="1">1</button>
+      <button class="key" data-key="2">2</button>
+      <button class="key" data-key="3">3</button>
+
+      <button class="key" data-key="4">4</button>
+      <button class="key" data-key="5">5</button>
+      <button class="key" data-key="6">6</button>
+
+      <button class="key" data-key="7">7</button>
+      <button class="key" data-key="8">8</button>
+      <button class="key" data-key="9">9</button>
+
+      <button class="key key-fn" data-key="clear">清除</button>
+      <button class="key" data-key="0">0</button>
+      <button class="key key-ok" data-key="ok">送出</button>
+
+      <button class="key key-wide" data-key="back">⌫ 退格</button>
+    </div>
+
 
     <div class="array-wrapper">
       <div id="array-label" class="array-label"></div>
@@ -406,6 +469,67 @@
     const totalCountEl = document.getElementById('total-count');
     const subtitleEl = document.getElementById('subtitle');
     const hintEl = document.getElementById('hint');
+
+    const keypadEl = document.getElementById('keypad');
+
+    function isTouchDevice() {
+      return (navigator.maxTouchPoints || 0) > 0;
+    }
+
+    // 你可以選擇：只在觸控裝置顯示 keypad；桌機則隱藏
+    function initKeypad() {
+      const touch = isTouchDevice();
+
+      // 觸控裝置：顯示 keypad，並讓 input 變 readonly（避免彈系統鍵盤）
+      keypadEl.style.display = touch ? 'grid' : 'none';
+      answerInputEl.readOnly = touch;
+
+      // 如果你想：iPad 也不顯示游標閃爍，可加這行
+      // answerInputEl.style.caretColor = touch ? 'transparent' : '';
+    }
+
+    function appendDigit(d) {
+      // 只允許最多 3 位數其實就夠（9*9=81），你想放寬也行
+      const maxLen = 3;
+      if (answerInputEl.value.length >= maxLen) return;
+      answerInputEl.value += String(d);
+    }
+
+    function backspace() {
+      answerInputEl.value = answerInputEl.value.slice(0, -1);
+    }
+
+    function clearAll() {
+      answerInputEl.value = '';
+    }
+
+    keypadEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-key]');
+      if (!btn) return;
+
+      const k = btn.dataset.key;
+
+      // 防止點 keypad 造成 input focus 觸發鍵盤（iPad 有時會）
+      e.preventDefault();
+
+      if (k === 'ok') {
+        checkAnswer();
+        return;
+      }
+      if (k === 'back') {
+        backspace();
+        return;
+      }
+      if (k === 'clear') {
+        clearAll();
+        return;
+      }
+      // digit
+      if (/^\d$/.test(k)) appendDigit(k);
+    });
+
+    // 初始化時呼叫一次
+    initKeypad();
 
     // const newQuestionBtn = document.getElementById('new-question-btn');
     const checkBtn = document.getElementById('check-btn');
