@@ -656,11 +656,11 @@
     }
 
 
-    const msg1 = new SpeechSynthesisUtterance(`${currentA} 排`);
+    const msg1 = new SpeechSynthesisUtterance(`這裡有 ${currentA} 排，每排 ${currentB} 顆`);
     msg1.lang = 'zh-TW';
     msg1.rate = 1.3;
 
-    const msg2 = new SpeechSynthesisUtterance(`每排 ${currentB} 顆`);
+    const msg2 = new SpeechSynthesisUtterance(`請算一算：${currentA} 成以 ${currentB} 等於多少？`);
     msg2.lang = 'zh-TW';
     msg2.rate = 1.3;
 
