@@ -356,9 +356,7 @@
       </div>
     </div>
 
-    <div id="question-text" class="question-text">
-      按「下一題」開始練習！
-    </div>
+    <div id="question-text" class="question-text">開始練習！</div>
 
     <!-- 式子 + 控制鍵 -->
     <div class="equation">
@@ -772,9 +770,10 @@
       //     `這裡有 ${a} 組，每組 ${b} 顆球。請算一算：${a} × ${b} 等於多少？`;
         const seq = [];
         for (let i = 1; i <= a; i++) seq.push(i * b);
+
         subtitleEl.textContent = '用顏色分組，看一看：有幾組？每組幾個？';
-        hintEl.textContent = `小提示：用「${b} 個一數」來數：` + seq.slice(0, 1).join('、') + '。';
-      }
+        hintEl.textContent = `小提示：用「${b} 個一數」來數：` + seq.slice(0, 2).join('、') + '。';
+      // }
     }
 
   function speakQuestion() {
@@ -957,15 +956,15 @@
     // 綁定事件
     // newQuestionBtn.addEventListener('click', newQuestion);
     checkBtn.addEventListener('click', checkAnswer);
-    showAnswerBtn.addEventListener('click', showAnswer);
+    // showAnswerBtn.addEventListener('click', showAnswer);
     speakBtn.addEventListener('click', speakQuestion);
 
     answerInputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') checkAnswer();
     });
 
-    modeAreaBtn.addEventListener('click', () => setMode('area'));
-    modeGroupBtn.addEventListener('click', () => setMode('groupColor'));
+    // modeAreaBtn.addEventListener('click', () => setMode('area'));
+    // modeGroupBtn.addEventListener('click', () => setMode('groupColor'));
 
     // 初始化 & 第一題
     initStarTrack();
