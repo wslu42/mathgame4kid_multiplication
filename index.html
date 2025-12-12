@@ -572,12 +572,14 @@
         sndBadge.play();
         speakEffect(`獲得${def.name}徽章了`, 1.2);
 
-        // 勳章數改變 → 星星門檻也可能變化 → 重新繪製
         initStarTrack();
+        return true;   // ⭐ 有拿到徽章
       } else {
         updateStarDisplay();
+        return false;  // 沒拿到
       }
     }
+
 
     // 畫陣列
     function renderDotGrid(rows, cols) {
@@ -733,7 +735,6 @@
         if (!currentQuestionAnsweredCorrect) {
           currentQuestionAnsweredCorrect = true;
 
-          // 答對音效
           sndCorrect.currentTime = 0;
           sndCorrect.play();
 
@@ -743,19 +744,22 @@
           correctCount++;
           correctCountEl.textContent = correctCount;
 
-          // 首次答對：加一顆星星
           starProgress++;
-          awardBadgeIfNeeded();
 
-          // 若之後你想重新開啟「1秒後自動下一題」，可把下面解除註解
+          // 看看這一顆星有沒有觸發徽章
+          const gotBadge = awardBadgeIfNeeded();
+
+          // 根據是否拿到徽章，決定要等多久再出下一題
+          const delay = gotBadge ? 2500 : 1000;
           autoNextTimer = setTimeout(() => {
             newQuestion();
-          }, 1000);
+          }, delay);
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
         }
-      } else {
+      }
+      else {
         feedbackEl.textContent = '再想想看，可以數一數點點～';
         feedbackEl.className = 'feedback bad';
 
