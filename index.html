@@ -334,7 +334,7 @@
       />
       <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
       <button id="check-btn">☑️檢查</button>
-      <button id="new-question-btn">⏩Next</button>
+      <!-- <button id="new-question-btn">⏩Next</button> -->
     </div>
 
     <div class="array-wrapper">
@@ -646,14 +646,15 @@
       if (!('speechSynthesis' in window)) return;
 
       let text = '';
-      if (currentMode === 'area') {
-        text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
-               `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
-      } else {
-        text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
-               `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
-               `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
-      }
+      text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。`
+      // if (currentMode === 'area') {
+      //   text = `這裡有 ${currentA} 排，每排 ${currentB} 顆球。` +
+      //          `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
+      // } else {
+      //   text = `這裡有 ${currentA} 組，每組 ${currentB} 顆球。` +
+      //          `可以想成 ${currentB} 個一數，數了 ${currentA} 次。` +
+      //          `請算一算：${currentA} 成以 ${currentB} 等於多少？`;
+      // }
 
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = 'zh-TW';
