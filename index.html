@@ -557,8 +557,10 @@
 
     function awardBadgeIfNeeded() {
       const goal = getStarGoal();
+
       if (starProgress >= goal) {
         starProgress = 0;
+
         const nextIndex = earnedBadges.length;
         const def = animalBadgeDefs[nextIndex] || { icon: '🏅', name: '神祕勳章' };
         earnedBadges.push(def);
@@ -567,18 +569,20 @@
         feedbackEl.textContent = `恭喜獲得動物勳章：${def.icon} ${def.name}！`;
         feedbackEl.className = 'feedback ok';
 
-        // 徽章音效 + 語音
+        // 音效
         sndBadge.currentTime = 0;
         sndBadge.play();
-        speakEffect(`獲得${def.name}徽章了`, 1.2);
 
         initStarTrack();
-        return true;   // ⭐ 有拿到徽章
+
+        // ⭐ 回傳「語音 Promise」
+        return speakEffectAsync(`獲得${def.name}徽章了`, 1.2);
       } else {
         updateStarDisplay();
-        return false;  // 沒拿到
+        return null;
       }
     }
+
 
 
     // 畫陣列
@@ -750,10 +754,22 @@
           const gotBadge = awardBadgeIfNeeded();
 
           // 根據是否拿到徽章，決定要等多久再出下一題
-          const delay = gotBadge ? 2500 : 1000;
-          autoNextTimer = setTimeout(() => {
-            newQuestion();
-          }, delay);
+          const badgeSpeech = awardBadgeIfNeeded();
+
+          if (badgeSpeech) {
+            // ⭐ 有徽章：等語音講完再跳題
+            badgeSpeech.then(() => {
+              autoNextTimer = setTimeout(() => {
+                newQuestion();
+              }, 300); // 小 pause，讓畫面不那麼急
+            });
+          } else {
+            // ⭐ 沒徽章：維持原本節奏
+            autoNextTimer = setTimeout(() => {
+              newQuestion();
+            }, 1000);
+          }
+
         } else {
           feedbackEl.textContent = '這題你已經答對囉 🎉';
           feedbackEl.className = 'feedback ok';
@@ -783,6 +799,25 @@
       renderCurrentQuestionVisual();
       speakQuestion();
     }
+
+    function speakEffectAsync(text, rate = 1.0) {
+      return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+          resolve();
+          return;
+        }
+
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'zh-TW';
+        msg.rate = rate;
+
+        msg.onend = () => resolve();   // ⭐ 語音播完
+        msg.onerror = () => resolve(); // 保險
+
+        window.speechSynthesis.speak(msg);
+      });
+    }
+
 
     // 綁定事件
     // newQuestionBtn.addEventListener('click', newQuestion);
