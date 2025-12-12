@@ -334,7 +334,7 @@
       />
       <button id="speak-btn" class="secondary" title="朗讀題目">🔊</button>
       <button id="check-btn">☑️檢查</button>
-      <button id="new-question-btn">⏩Next</button>
+      <!-- <button id="new-question-btn">⏩Next</button> -->
     </div>
 
     <div class="array-wrapper">
@@ -407,7 +407,7 @@
     const subtitleEl = document.getElementById('subtitle');
     const hintEl = document.getElementById('hint');
 
-    const newQuestionBtn = document.getElementById('new-question-btn');
+    // const newQuestionBtn = document.getElementById('new-question-btn');
     const checkBtn = document.getElementById('check-btn');
     const showAnswerBtn = document.getElementById('show-answer-btn');
     const modeAreaBtn = document.getElementById('mode-area');
@@ -781,7 +781,7 @@
     }
 
     // 綁定事件
-    newQuestionBtn.addEventListener('click', newQuestion);
+    // newQuestionBtn.addEventListener('click', newQuestion);
     checkBtn.addEventListener('click', checkAnswer);
     showAnswerBtn.addEventListener('click', showAnswer);
     speakBtn.addEventListener('click', speakQuestion);
